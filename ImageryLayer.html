@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="description" content="[Add an ImageryLayer to a map - 4.2]">
+    <title>Add an ImageryLayer to a map - 4.2</title>
+
+    <link rel="stylesheet" href="https://js.arcgis.com/4.2/esri/css/main.css">
+    <script src="https://js.arcgis.com/4.2/"></script>
+
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+
+    <script>
+    require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/ImageryLayer",
+        "dojo/domReady!"
+      ],
+      function(
+        Map, MapView,
+        ImageryLayer
+      ) {
+        var layer = new ImageryLayer({
+          url: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/NLCDLandCover2001/ImageServer",
+          format: "jpgpng", // server exports in either jpg or png format
+          pixelFilter: colorize // optional
+        });
+
+        // A pixelfilter function runs on the client. It makes it possible to remap pixel values: (R1,G1,B1)->(R2,G2,B2)    
+        function colorize(pixelData) {
+            // If there isn't pixelData, a pixelBlock, nor pixels, exit the function
+            if (pixelData === null || pixelData.pixelBlock === null || pixelData.pixelBlock.pixels === null) {
+                return;
+            }
+            // The pixelBlock stores the values of all pixels visible in the view
+            var pixelBlock = pixelData.pixelBlock;
+
+            // The pixels visible in the view
+            var pixels = pixelBlock.pixels;
+
+            var R = pixels[0];
+            var G = pixels[1];
+            var B = pixels[2];
+
+            // The number of pixels in the pixelBlock
+            var numPixels = pixelBlock.width * pixelBlock.height;
+
+            // Loop through all the pixels in the view
+            for (i = 0; i < numPixels; i++) {
+                var r = R[i];
+                var g = G[i];
+                var b = B[i];
+
+                B[i] = 255 - b;
+            }
+        }
+        
+        var map = new Map({
+          basemap: "oceans", //"gray",
+          layers: [layer]
+        });
+
+        var view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [-100, 40],
+          zoom: 5
+        });
+      });
+    </script>
+</head>
+
+<body>
+    <div id="viewDiv"></div>
+</body>
+
+</html>
