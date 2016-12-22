@@ -49,7 +49,7 @@
                 var addL = function (marker, m) {
                     var txt = m.info;
                     txt = "<h1>" + m.name + "</h1><img src=\"" + txt + "\" height=\"400\" width=\"400\">";
-                    marker.addListener('click', function () {
+                    marker.addListener('mousedown', function () {
                         var infowindow = new google.maps.InfoWindow({
                             content: txt
                         });
